@@ -6,17 +6,18 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import frc.robot.Constants.IntakeConstants;
+
 public class IntakeSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
-  private static final int IntakeMotor1CanID = 9;
   //private static final int kCanID = 9;
   //private static final MotorType kMotorType = MotorType.kBrushless;
 
-  private CANSparkMax m_intakeMotor1;
+  private CANSparkMax m_intakeMotor;
   public IntakeSubsystem() {
 
-    m_intakeMotor1 = new CANSparkMax(IntakeMotor1CanID, CANSparkLowLevel.MotorType.kBrushless);
-    m_intakeMotor1.restoreFactoryDefaults();
+    m_intakeMotor = new CANSparkMax(IntakeConstants.IntakeMotorCanID, CANSparkLowLevel.MotorType.kBrushless);
+    m_intakeMotor.restoreFactoryDefaults();
   }
 
   /**
@@ -27,15 +28,15 @@ public class IntakeSubsystem extends SubsystemBase {
   public Command intakeOnCommand() {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem. 
-    m_intakeMotor1.set(-0.25);
-    return this.run(() -> m_intakeMotor1.set(-0.25));
+    m_intakeMotor.set(-0.25);
+    return this.run(() -> m_intakeMotor.set(IntakeConstants.IntakeSpeed));
   }
 
   public Command intakeOffCommand() {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem.
-    m_intakeMotor1.set(0);
-    return this.run(() -> m_intakeMotor1.set(0));
+    m_intakeMotor.set(0);
+    return this.run(() -> m_intakeMotor.set(0));
   }
 
   /**
