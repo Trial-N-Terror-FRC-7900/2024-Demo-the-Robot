@@ -73,6 +73,19 @@ public class ArmSubsystem extends SubsystemBase {
           /* one-time action goes here */
         });
   }
+  public Command armOff(){
+    //call to specific rotation first
+    m_armMotor1.set(0);
+    return this.run(() -> m_armMotor1.set(0));
+  }
+
+  public Command armAmp(){
+    return null;
+  }
+
+  public Command armSpeaker(){
+    return null;
+  }
 
   /**
    * An example method querying a boolean state of the subsystem (for example, a digital sensor).

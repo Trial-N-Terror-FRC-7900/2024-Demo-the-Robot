@@ -61,6 +61,8 @@ public final class Constants
     public static final double kFF = 0; 
     public static final double kMaxOutput = 1; 
     public static final double kMinOutput = -1;
+
+    public static final double armStopSpeed = 0;
   }
 
   public static class IntakeConstants 
@@ -81,5 +83,13 @@ public final class Constants
   {
     public static final int ElevatorMotor1CanID = 9;
     public static final int ElevatorMotor2CanID = 9;
+
+    public static final double kP = 0.1; 
+    public static final double kI = 1e-4;
+    public static final double kD = 1; 
+    public static final double kIz = 0; 
+    public static final double kFF = 0; 
+    public static final double kMaxOutput = 1; 
+    public static final double kMinOutput = -1;
   }
 }

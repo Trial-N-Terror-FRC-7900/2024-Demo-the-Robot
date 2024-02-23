@@ -13,11 +13,15 @@ public class ShooterSubsystem extends SubsystemBase {
   private static final int shooterMotorTopCanID = 12;
   private static final int shooterMotorBottomCanID = 13;
   private static final int shooterMotorAmpCanID = 14;
+  private static final int placeholderCanID = 200;
+
+  private int flip = 1;
   //private static final MotorType kMotorType = MotorType.kBrushless;
 
   private CANSparkMax m_shooterMotorTop;
   private CANSparkMax m_shooterMotorBottom;
-  private CANSparkMax m_shooterMotorAmp;
+  private CANSparkMax m_shooterMotorholder;
+  private CANSparkMax m_placeholder;
 
   public ShooterSubsystem() {
 
@@ -33,8 +37,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
 
-    m_shooterMotorAmp = new CANSparkMax(shooterMotorAmpCanID, CANSparkLowLevel.MotorType.kBrushless);
-    m_shooterMotorAmp.restoreFactoryDefaults();
+    m_shooterMotorholder = new CANSparkMax(shooterMotorAmpCanID, CANSparkLowLevel.MotorType.kBrushless);
+    m_shooterMotorholder.restoreFactoryDefaults();
+
+    m_placeholder= new CANSparkMax(placeholderCanID, CANSparkLowLevel.MotorType.kBrushless);
+    m_placeholder.restoreFactoryDefaults();
+
 
     /**
      * From here on out, code looks exactly like running PID control with the 
@@ -42,6 +50,13 @@ public class ShooterSubsystem extends SubsystemBase {
      */ 
 
     // PID coefficients
+  }
+
+  public void placeholder(CANSparkMax motorset1, CANSparkMax motorset2, double value){
+    m_placeholder.set(value);
+    motorset1.set(m_placeholder.get());
+    motorset2.set(m_placeholder.get()*flip);
+    return;
   }
 
   /**
@@ -58,6 +73,24 @@ public class ShooterSubsystem extends SubsystemBase {
         });
   }
 
+  public Command shootOn(){
+    m_shooterMotorBottom.set(1*flip);
+    m_shooterMotorTop.set(-1*flip);
+    m_shooterMotorBottom.get();
+    return this.run(() -> placeholder(m_shooterMotorBottom, m_shooterMotorTop, 1));
+  }
+
+  public Command shootOff(){
+    m_shooterMotorBottom.set(0);
+    m_shooterMotorTop.set(0);
+    return this.run(() -> placeholder(m_shooterMotorBottom, m_shooterMotorTop,0));
+  }
+
+  public Command Intake(){
+    m_shooterMotorBottom.set(0.2);
+    m_shooterMotorTop.set(-0.2);
+    return this.run(() -> placeholder(m_shooterMotorBottom, m_shooterMotorTop, 0.25));
+  }
   /**
    * An example method querying a boolean state of the subsystem (for example, a digital sensor).
    *

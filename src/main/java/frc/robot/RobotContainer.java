@@ -21,7 +21,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 import java.io.File;
 
 /**
@@ -33,6 +36,10 @@ public class RobotContainer
 {
 
   private final IntakeSubsystem m_Intake = new IntakeSubsystem();
+  public final ArmSubsystem m_Arm = new ArmSubsystem();
+  public final ShooterSubsystem m_shooter = new ShooterSubsystem();
+  public final ElevatorSubsystem m_elevator = new ElevatorSubsystem();
+
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                          "swerve"));
@@ -42,6 +49,7 @@ public class RobotContainer
 
   // CommandJoystick driverController   = new CommandJoystick(3);//(OperatorConstants.DRIVER_CONTROLLER_PORT);
   XboxController driverXbox = new XboxController(0);
+  XboxController OperatorXbox = new XboxController(2);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -103,8 +111,14 @@ public class RobotContainer
   private void configureBindings()
   {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new JoystickButton(driverXbox, 4).onTrue(new InstantCommand(m_Intake::intakeOnCommand));
-    new JoystickButton(driverXbox, 4).onFalse(new InstantCommand(m_Intake::intakeOffCommand));
+    new JoystickButton(OperatorXbox, 4).toggleOnTrue(new InstantCommand(m_Intake::intakeOnCommand));
+    new JoystickButton(OperatorXbox, 4).toggleOnTrue(new InstantCommand(m_shooter::Intake));
+    new JoystickButton(OperatorXbox, 4).toggleOnFalse(new InstantCommand(m_Intake::intakeOffCommand));
+    new JoystickButton(OperatorXbox, 2).toggleOnFalse(new InstantCommand(m_Arm::armOff));
+    new JoystickButton(OperatorXbox,3).onTrue(new InstantCommand(m_shooter::shootOn));
+    new JoystickButton(OperatorXbox,3).onFalse(new InstantCommand(m_shooter::shootOff));
+    new JoystickButton(OperatorXbox,1).onTrue(new InstantCommand(m_elevator::elevatorUp));
+    new JoystickButton(OperatorXbox,1).onFalse(new InstantCommand(m_elevator::elevatorDown));
     new JoystickButton(driverXbox, 1).onTrue((new InstantCommand(drivebase::zeroGyro)));
     new JoystickButton(driverXbox, 3).onTrue(new InstantCommand(drivebase::addFakeVisionReading));
     new JoystickButton(driverXbox,
@@ -125,7 +139,7 @@ public class RobotContainer
   public Command getAutonomousCommand()
   {
     // An example command will be run in autonomous
-    return drivebase.getAutonomousCommand("New Path");
+    return drivebase.getAutonomousCommand("Example Path");
   }
 
   public void setDriveMode()
