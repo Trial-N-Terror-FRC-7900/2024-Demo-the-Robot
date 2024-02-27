@@ -111,10 +111,11 @@ public class RobotContainer
   private void configureBindings()
   {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new JoystickButton(OperatorXbox, 4).toggleOnTrue(new InstantCommand(m_Intake::intakeOnCommand));
-    new JoystickButton(OperatorXbox, 4).toggleOnTrue(new InstantCommand(m_shooter::Intake));
-    new JoystickButton(OperatorXbox, 4).toggleOnFalse(new InstantCommand(m_Intake::intakeOffCommand));
-    new JoystickButton(OperatorXbox, 2).toggleOnFalse(new InstantCommand(m_Arm::armOff));
+    new JoystickButton(OperatorXbox, 4).onTrue(new InstantCommand(m_Intake::intakeOnCommand));
+    new JoystickButton(OperatorXbox, 4).onTrue(new InstantCommand(m_shooter::Intake));
+    new JoystickButton(OperatorXbox, 4).onFalse(new InstantCommand(m_Intake::intakeOffCommand));
+    new JoystickButton(OperatorXbox, 2).onFalse(new InstantCommand(m_Arm::armOff));
+    new JoystickButton(OperatorXbox, 2).onFalse(new InstantCommand(m_Arm::armUp));
     new JoystickButton(OperatorXbox,3).onTrue(new InstantCommand(m_shooter::shootOn));
     new JoystickButton(OperatorXbox,3).onFalse(new InstantCommand(m_shooter::shootOff));
     new JoystickButton(OperatorXbox,1).onTrue(new InstantCommand(m_elevator::elevatorUp));
@@ -151,4 +152,5 @@ public class RobotContainer
   {
     drivebase.setMotorBrake(brake);
   }
+
 }

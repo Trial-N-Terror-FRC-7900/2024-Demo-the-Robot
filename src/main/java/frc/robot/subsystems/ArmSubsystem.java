@@ -1,27 +1,31 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.CANSparkBase;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.CANSparkLowLevel;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.SparkAbsoluteEncoder;
+import java.util.List;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.CANSparkLowLevel;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkAbsoluteEncoder;
+import com.revrobotics.SparkPIDController;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import frc.robot.Constants.ArmConstants;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 
 public class ArmSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
   //private static final MotorType kMotorType = MotorType.kBrushless;
+  //private int flip = -1;
 
   private CANSparkMax m_armMotor1;
   private CANSparkMax m_armMotor2; 
   private SparkPIDController m_pidController;
-  private AbsoluteEncoder m_encoder;
+  
+  //private AbsoluteEncoder m_encoder;
+  //private CANSparkMax m_placeholder;
+  private CANSparkMax m_leadMotor;
+  private CANSparkMax m_followMotor;
 
   public ArmSubsystem() {
 
@@ -49,7 +53,7 @@ public class ArmSubsystem extends SubsystemBase {
     m_pidController = m_armMotor1.getPIDController();
 
     // Encoder object created to display position values
-    m_encoder = m_armMotor1.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+    //m_encoder = m_armMotor1.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
 
     // set PID coefficients
     m_pidController.setP(ArmConstants.kP);
@@ -58,7 +62,22 @@ public class ArmSubsystem extends SubsystemBase {
     m_pidController.setIZone(ArmConstants.kIz);
     m_pidController.setFF(ArmConstants.kFF);
     m_pidController.setOutputRange(ArmConstants.kMinOutput, ArmConstants.kMaxOutput);
+
+    m_leadMotor = new CANSparkMax(m_armMotor1.getDeviceId(), MotorType.kBrushless);
+    m_followMotor = new CANSparkMax(m_armMotor2.getDeviceId(), MotorType.kBrushless);
+    m_leadMotor.restoreFactoryDefaults();
+    m_followMotor.restoreFactoryDefaults();
+    m_followMotor.follow(m_leadMotor);
   }
+
+  /*
+  public void placeholder(CANSparkMax motorset1, CANSparkMax motorset2, double value){
+    m_placeholder.set(value);
+    motorset1.set(m_placeholder.get());
+    motorset2.set(m_placeholder.get()*flip);
+    return;
+  }
+  */
 
   /**
    * Example command factory method.
@@ -73,17 +92,35 @@ public class ArmSubsystem extends SubsystemBase {
           /* one-time action goes here */
         });
   }
+
+  public Command armOn(){
+    //m_leadMotor.set(0.1);
+    return this.run(() -> m_leadMotor.set(0.1));
+  }
   public Command armOff(){
     //call to specific rotation first
-    m_armMotor1.set(0);
-    return this.run(() -> m_armMotor1.set(0));
+    //m_armMotor1.set(0);
+    return this.run(() -> m_leadMotor.set(0));
   }
 
+  public Command armUp() {
+    //m_armMotor1.set(1*flip);
+    //m_armMotor2.set(-1*flip);
+    //m_armMotor1.get();
+    return this.run(() -> m_leadMotor.set(0.1));
+}
+
+/*
   public Command armAmp(){
     return null;
   }
 
   public Command armSpeaker(){
+    return null;
+  }
+
+  //public List<List> i = [];
+  public Command clickUp(){
     return null;
   }
 
