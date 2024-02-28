@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.pathplanner.lib.util.PIDConstants;
 
 import edu.wpi.first.math.geometry.Translation3d;
@@ -63,6 +64,13 @@ public final class Constants
     public static final double kFF = 0; 
     public static final double kMaxOutput = 1; 
     public static final double kMinOutput = -1;
+
+    public static final double armSpeaker = 0.5;
+    public static final double armAmp = 0.5;
+    public static final double armDown = 0.5;
+
+    public static final float armForwardLimit = 1;
+    public static final float armReverseLimit = 0;
   }
 
   public static class IntakeConstants 
@@ -77,6 +85,8 @@ public final class Constants
     public static final int shooterMotorTopCanID = 12;
     public static final int shooterMotorBottomCanID = 13;
     public static final int shooterMotorAmpCanID = 14;
+
+    public static final int shootSpeed = 1;
   }
 
   public static class ElevatorConstants 
@@ -91,5 +101,11 @@ public final class Constants
     public static final double kFF = 0; 
     public static final double kMaxOutput = 1; 
     public static final double kMinOutput = -1;
+
+    public static final double elevatordown = 0;
+    public static final double elevatorup = 1;
+
+    public static final float elevatorForwardLimit = 1;
+    public static final float elevatorReverseLimit = 0;
   }
 }

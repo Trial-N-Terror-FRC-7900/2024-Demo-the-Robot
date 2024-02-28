@@ -1,41 +1,32 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.CANSparkBase;
-import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkLowLevel;
-import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
+import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
-  private static final int ElevatorMotor1CanID = 9;
-  private static final int ElevatorMotor2CanID = 9;
-
-  private int flip = 1;
-  //private static final int kCanID = 9;
-  //private static final MotorType kMotorType = MotorType.kBrushless;
 
   private CANSparkMax m_elevatorMotor1;
   private CANSparkMax m_elevatorMotor2;
-  private CANSparkMax m_placeholder;
   private SparkPIDController m_pidController;
   private AbsoluteEncoder m_encoder;
 
   public ElevatorSubsystem() {
 
-    m_elevatorMotor1 = new CANSparkMax(ElevatorMotor1CanID, CANSparkLowLevel.MotorType.kBrushless);
+    m_elevatorMotor1 = new CANSparkMax(ElevatorConstants.ElevatorMotor1CanID, CANSparkLowLevel.MotorType.kBrushless);
     m_elevatorMotor1.restoreFactoryDefaults();
 
 
 
-    m_elevatorMotor2 = new CANSparkMax(ElevatorMotor2CanID, CANSparkLowLevel.MotorType.kBrushless);
+    m_elevatorMotor2 = new CANSparkMax(ElevatorConstants.ElevatorMotor2CanID, CANSparkLowLevel.MotorType.kBrushless);
     m_elevatorMotor2.restoreFactoryDefaults();
 
   m_elevatorMotor1.restoreFactoryDefaults();
@@ -57,15 +48,17 @@ public class ElevatorSubsystem extends SubsystemBase {
   m_pidController.setIZone(ElevatorConstants.kIz);
   m_pidController.setFF(ElevatorConstants.kFF);
   m_pidController.setOutputRange(ElevatorConstants.kMinOutput, ElevatorConstants.kMaxOutput);
+  m_pidController.setFeedbackDevice(m_encoder);
+
+  m_elevatorMotor1.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, ElevatorConstants.elevatorForwardLimit);
+  m_elevatorMotor1.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, ElevatorConstants.elevatorReverseLimit);
+
+  m_elevatorMotor1.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
+  m_elevatorMotor1.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+
+  m_elevatorMotor2.follow(m_elevatorMotor1, true);
   }
   
-
-  public void placeholder(CANSparkMax motorset1, CANSparkMax motorset2, double value){
-    m_placeholder.set(value);
-    motorset1.set(m_placeholder.get());
-    motorset2.set(m_placeholder.get()*flip);
-    return;
-  }
   /**
    * Example command factory method.
    *
@@ -81,17 +74,11 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
 public Command elevatorUp() {
-    m_elevatorMotor1.set(1*flip);
-    m_elevatorMotor2.set(-1*flip);
-    m_elevatorMotor1.get();
-    return this.run(() -> placeholder(m_elevatorMotor1, m_elevatorMotor2, 0.2));
+    return this.run(() -> m_pidController.setReference(ElevatorConstants.elevatorup, CANSparkMax.ControlType.kPosition));
 }
 
 public Command elevatorDown() {
-    m_elevatorMotor1.set(1*flip);
-    m_elevatorMotor2.set(-1*flip);
-    m_elevatorMotor1.get();
-    return this.run(() -> placeholder(m_elevatorMotor1, m_elevatorMotor2, 0.2));
+    return this.run(() -> m_pidController.setReference(ElevatorConstants.elevatordown, CANSparkMax.ControlType.kPosition));
 }
   /**
    * An example method querying a boolean state of the subsystem (for example, a digital sensor).

@@ -1,27 +1,26 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
   private static final int shooterMotorTopCanID = 12;
   private static final int shooterMotorBottomCanID = 13;
-  private static final int shooterMotorAmpCanID = 14;
-  private static final int placeholderCanID = 200;
-
-  private int flip = 1;
   //private static final MotorType kMotorType = MotorType.kBrushless;
 
   private CANSparkMax m_shooterMotorTop;
   private CANSparkMax m_shooterMotorBottom;
-  private CANSparkMax m_shooterMotorholder;
-  private CANSparkMax m_placeholder;
+  private SparkPIDController m_pidController;
+  private AbsoluteEncoder m_encoder;
 
   public ShooterSubsystem() {
 
@@ -36,27 +35,30 @@ public class ShooterSubsystem extends SubsystemBase {
     m_shooterMotorBottom.restoreFactoryDefaults();
 
 
-
-    m_shooterMotorholder = new CANSparkMax(shooterMotorAmpCanID, CANSparkLowLevel.MotorType.kBrushless);
-    m_shooterMotorholder.restoreFactoryDefaults();
-
-    m_placeholder= new CANSparkMax(placeholderCanID, CANSparkLowLevel.MotorType.kBrushless);
-    m_placeholder.restoreFactoryDefaults();
-
-
     /**
      * From here on out, code looks exactly like running PID control with the 
      * built-in NEO encoder, but feedback will come from the alternate encoder
      */ 
 
     // PID coefficients
-  }
+    m_pidController = m_shooterMotorTop.getPIDController();
 
-  public void placeholder(CANSparkMax motorset1, CANSparkMax motorset2, double value){
-    m_placeholder.set(value);
-    motorset1.set(m_placeholder.get());
-    motorset2.set(m_placeholder.get()*flip);
-    return;
+    // set PID coefficients
+    m_pidController.setP(ArmConstants.kP);
+    m_pidController.setI(ArmConstants.kI);
+    m_pidController.setD(ArmConstants.kD);
+    m_pidController.setIZone(ArmConstants.kIz);
+    m_pidController.setFF(ArmConstants.kFF);
+    m_pidController.setOutputRange(ArmConstants.kMinOutput, ArmConstants.kMaxOutput);
+    m_pidController.setFeedbackDevice(m_encoder);
+
+    m_shooterMotorTop.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, ArmConstants.armForwardLimit);
+    m_shooterMotorTop.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, ArmConstants.armReverseLimit);
+
+    m_shooterMotorTop.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
+    m_shooterMotorTop.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+
+    m_shooterMotorBottom.follow(m_shooterMotorTop, true);
   }
 
   /**
@@ -74,22 +76,19 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public Command shootOn(){
-    m_shooterMotorBottom.set(1*flip);
-    m_shooterMotorTop.set(-1*flip);
-    m_shooterMotorBottom.get();
-    return this.run(() -> placeholder(m_shooterMotorBottom, m_shooterMotorTop, 1));
+    m_shooterMotorTop.set(ShooterConstants.shootSpeed);
+    return this.run(() -> m_shooterMotorTop.set(ShooterConstants.shootSpeed));
   }
 
   public Command shootOff(){
-    m_shooterMotorBottom.set(0);
     m_shooterMotorTop.set(0);
-    return this.run(() -> placeholder(m_shooterMotorBottom, m_shooterMotorTop,0));
+    //m_shooterMotorBottom.set(0);
+    return this.run(() -> m_shooterMotorTop.set(0));
   }
 
   public Command Intake(){
-    m_shooterMotorBottom.set(0.2);
-    m_shooterMotorTop.set(-0.2);
-    return this.run(() -> placeholder(m_shooterMotorBottom, m_shooterMotorTop, 0.25));
+    m_shooterMotorTop.set(IntakeConstants.IntakeSpeed);
+    return this.run(() -> m_shooterMotorTop.set(IntakeConstants.IntakeSpeed));
   }
   /**
    * An example method querying a boolean state of the subsystem (for example, a digital sensor).

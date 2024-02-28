@@ -1,17 +1,17 @@
 package frc.robot.subsystems;
 
-import java.util.List;
-
+import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkAbsoluteEncoder;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
+import com.revrobotics.SparkRelativeEncoder;
+import com.revrobotics.SparkAbsoluteEncoder;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
-import com.revrobotics.CANSparkLowLevel.MotorType;
 
 public class ArmSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
@@ -21,16 +21,14 @@ public class ArmSubsystem extends SubsystemBase {
   private CANSparkMax m_armMotor1;
   private CANSparkMax m_armMotor2; 
   private SparkPIDController m_pidController;
+  private AbsoluteEncoder m_encoder;
   
-  //private AbsoluteEncoder m_encoder;
-  //private CANSparkMax m_placeholder;
-  private CANSparkMax m_leadMotor;
-  private CANSparkMax m_followMotor;
 
   public ArmSubsystem() {
 
     //Right from front arm motor
     m_armMotor1 = new CANSparkMax(ArmConstants.armMotor1CanID, CANSparkLowLevel.MotorType.kBrushless);
+    m_encoder = m_armMotor1.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
     m_armMotor1.restoreFactoryDefaults();
 
 
@@ -42,8 +40,7 @@ public class ArmSubsystem extends SubsystemBase {
     /**
      * From here on out, code looks exactly like running PID control with the 
      * built-in NEO encoder, but feedback will come from the alternate encoder
-     */ 
-    m_armMotor1.restoreFactoryDefaults();
+     */
 
     /**
      * In order to use PID functionality for a controller, a SparkPIDController object
@@ -62,12 +59,15 @@ public class ArmSubsystem extends SubsystemBase {
     m_pidController.setIZone(ArmConstants.kIz);
     m_pidController.setFF(ArmConstants.kFF);
     m_pidController.setOutputRange(ArmConstants.kMinOutput, ArmConstants.kMaxOutput);
+    m_pidController.setFeedbackDevice(m_encoder);
 
-    m_leadMotor = new CANSparkMax(m_armMotor1.getDeviceId(), MotorType.kBrushless);
-    m_followMotor = new CANSparkMax(m_armMotor2.getDeviceId(), MotorType.kBrushless);
-    m_leadMotor.restoreFactoryDefaults();
-    m_followMotor.restoreFactoryDefaults();
-    m_followMotor.follow(m_leadMotor);
+    m_armMotor1.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, ArmConstants.armForwardLimit);
+    m_armMotor1.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, ArmConstants.armReverseLimit);
+
+    m_armMotor1.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
+    m_armMotor1.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+
+    m_armMotor2.follow(m_armMotor1, true);
   }
 
   /*
@@ -93,21 +93,20 @@ public class ArmSubsystem extends SubsystemBase {
         });
   }
 
-  public Command armOn(){
-    //m_leadMotor.set(0.1);
-    return this.run(() -> m_leadMotor.set(0.1));
+  public Command armDown(){
+    return this.run(() -> m_pidController.setReference(ArmConstants.armDown, CANSparkMax.ControlType.kPosition));
   }
-  public Command armOff(){
+  public Command armAmp(){
     //call to specific rotation first
     //m_armMotor1.set(0);
-    return this.run(() -> m_leadMotor.set(0));
+    return this.run(() -> m_pidController.setReference(ArmConstants.armAmp, CANSparkMax.ControlType.kPosition));
   }
 
-  public Command armUp() {
+  public Command armSpeaker() {
     //m_armMotor1.set(1*flip);
     //m_armMotor2.set(-1*flip);
     //m_armMotor1.get();
-    return this.run(() -> m_leadMotor.set(0.1));
+    return this.run(() -> m_pidController.setReference(ArmConstants.armSpeaker, CANSparkMax.ControlType.kPosition));
 }
 
 /*
