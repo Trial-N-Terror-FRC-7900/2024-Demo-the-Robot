@@ -5,18 +5,18 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
+//import edu.wpi.first.math.geometry.Pose2d;
+//import edu.wpi.first.math.geometry.Rotation2d;
+//import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+//import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.Subsystem;
+//import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -44,9 +44,9 @@ public class RobotContainer
 {
 
   private final IntakeSubsystem m_Intake = new IntakeSubsystem();
-  public final ArmSubsystem m_Arm = new ArmSubsystem();
-  public final ShooterSubsystem m_shooter = new ShooterSubsystem();
-  public final ElevatorSubsystem m_elevator = new ElevatorSubsystem();
+  //public final ArmSubsystem m_Arm = new ArmSubsystem();
+  //public final ShooterSubsystem m_shooter = new ShooterSubsystem();
+  //public final ElevatorSubsystem m_elevator = new ElevatorSubsystem();
 
   private final SendableChooser<Command> autoChooser;
   //public final Swerve swerve = new Swerve();
@@ -59,8 +59,8 @@ public class RobotContainer
   CommandJoystick driverController = new CommandJoystick(1);
 
   // CommandJoystick driverController   = new CommandJoystick(3);//(OperatorConstants.DRIVER_CONTROLLER_PORT);
-  XboxController driverXbox = new XboxController(0);
-  XboxController OperatorXbox = new XboxController(2);
+  XboxController driverXbox = new XboxController(1);
+  private final CommandXboxController OperatorXbox = new CommandXboxController(2);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -69,14 +69,17 @@ public class RobotContainer
   {
     // Register Named Commands
     //NamedCommands.registerCommand("autoBalance", swerve.autoBalanceCommand());
-    NamedCommands.registerCommand("ArmDown", m_Arm.armDown());
-    NamedCommands.registerCommand("ArmAmp", m_Arm.armAmp());
-    NamedCommands.registerCommand("ArmSpeaker", m_Arm.armSpeaker());
-    NamedCommands.registerCommand("Shoot", m_shooter.shootOn());
-    NamedCommands.registerCommand("ShootStop", m_shooter.shootOff());
-    NamedCommands.registerCommand("IntakeOn", m_Intake.intakeOnCommand());
-    NamedCommands.registerCommand("IntakeOff", m_Intake.intakeOffCommand());
-    NamedCommands.registerCommand("IntakeSpit", m_Intake.IntakeSpit());
+    //NamedCommands.registerCommand("ArmDown", m_Arm.armLowReady());
+    //NamedCommands.registerCommand("ArmAmp", m_Arm.armAmp());
+    //NamedCommands.registerCommand("ArmSpeaker", m_Arm.armSpeaker());
+    //NamedCommands.registerCommand("Shoot", m_shooter.shootOn());
+    //NamedCommands.registerCommand("ShootStop", m_shooter.shootOff());
+    //NamedCommands.registerCommand("shooterIntake", m_shooter.Intake());
+    //NamedCommands.registerCommand("IntakeOn", m_Intake.intakeOnCommand());
+    //NamedCommands.registerCommand("IntakeOff", m_Intake.intakeOffCommand());
+    //NamedCommands.registerCommand("IntakeSpit", m_Intake.IntakeSpit());
+    //NamedCommands.registerCommand("AmpShotOn", m_shooter.AmpShotOn());
+    //NamedCommands.registerCommand("AmpShotOff", m_shooter.AmpShotOff());
     //NamedCommands.registerCommand("someOtherCommand", new SomeOtherCommand());
 
     // Configure the trigger bindings
@@ -137,34 +140,37 @@ public class RobotContainer
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary predicate, or via the
    * named factories in {@link edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
    * {@link CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller PS4}
-   * controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight joysticks}.
+   * controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight joysticks}.0
    */
   private void configureBindings()
   {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new JoystickButton(OperatorXbox, 4).onTrue(new InstantCommand(m_Intake::intakeOnCommand));
-    new JoystickButton(OperatorXbox, 4).onTrue(new InstantCommand(m_shooter::Intake));
-    ((Subsystem) new JoystickButton(OperatorXbox, 4)).setDefaultCommand(new InstantCommand(m_Intake::intakeOffCommand));
+    OperatorXbox.y().whileTrue(m_Intake.intakeOnCommand());
+    //new JoystickButton(OperatorXbox, 4).onTrue(new InstantCommand(m_shooter::Intake));
+    //new JoystickButton(OperatorXbox, 4).onFalse(m_Intake.intakeOffCommand());
+    /* 
     new JoystickButton(OperatorXbox, 3).onTrue(new InstantCommand(m_shooter::shootOn));
-    ((Subsystem) new JoystickButton(OperatorXbox, 3)).setDefaultCommand((new InstantCommand(m_shooter::shootOff)));
-    new JoystickButton(OperatorXbox, 5).onTrue(new InstantCommand(m_Intake::IntakeSpit));
-    new JoystickButton(OperatorXbox, 5).onTrue(new InstantCommand(m_shooter::shootOn));
-    new JoystickButton(OperatorXbox, 2).onFalse(m_Arm.armDown());
-    new JoystickButton(OperatorXbox, 2).onFalse(m_Arm.armAmp());
-    new JoystickButton(OperatorXbox,3).onTrue(new InstantCommand(m_shooter::shootOn));
-    ((Subsystem) new JoystickButton(OperatorXbox,3)).setDefaultCommand(new InstantCommand(m_shooter::shootOff));
-    new JoystickButton(OperatorXbox,1).onTrue(m_elevator.elevatorUp());
-    new JoystickButton(OperatorXbox,1).onFalse(m_elevator.elevatorDown());
-    
+    new JoystickButton(OperatorXbox, 3).onFalse((new InstantCommand(m_shooter::shootOff)));
+
+    new JoystickButton(OperatorXbox, 8).onTrue(new InstantCommand(m_shooter::AmpShotOn));
+    new JoystickButton(OperatorXbox, 8).onFalse((new InstantCommand(m_shooter::AmpShotOff)));
+
+    new JoystickButton(OperatorXbox, 1).onTrue(new InstantCommand(m_Intake::IntakeSpit));
+
+    new JoystickButton(OperatorXbox, 5).onFalse(m_Arm.armLowReady());
+    new JoystickButton(OperatorXbox, 6).onFalse(m_Arm.armLowReady()); // WHATTT IS THISSS
+    new JoystickButton(OperatorXbox, 5).onTrue(m_Arm.armAmp());
+    new JoystickButton(OperatorXbox, 6).onTrue(m_Arm.armSpeaker());
+
+    new JoystickButton(OperatorXbox,2).onTrue(m_elevator.elevatorUp());
+    new JoystickButton(OperatorXbox,2).onFalse(m_elevator.elevatorDown());
+    */
     new JoystickButton(driverXbox, 1).onTrue((new InstantCommand(drivebase::zeroGyro)));
-    new JoystickButton(driverXbox, 3).onTrue(new InstantCommand(drivebase::addFakeVisionReading));
-    new JoystickButton(driverXbox,
-                       2).whileTrue(
-        Commands.deferredProxy(() -> drivebase.driveToPose(
-                                   new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
-                              ));
     
-//    new JoystickButton(driverXbox, 3).whileTrue(new RepeatCommand(new InstantCommand(drivebase::lock, drivebase)));
+    //new JoystickButton(driverXbox, 3).onTrue(new InstantCommand(drivebase::addFakeVisionReading));
+    //new JoystickButton(driverXbox, 2).whileTrue(Commands.deferredProxy(() -> drivebase.driveToPose(new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))));
+    
+    //new JoystickButton(driverXbox, 3).whileTrue(new RepeatCommand(new InstantCommand(drivebase::lock, drivebase)));
 
   }
 

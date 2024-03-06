@@ -4,7 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkLowLevel;
-import com.revrobotics.CANSparkLowLevel.MotorType;
+//import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
@@ -13,26 +13,28 @@ import frc.robot.Constants.ShooterConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
-  private static final int shooterMotorTopCanID = 12;
-  private static final int shooterMotorBottomCanID = 13;
   //private static final MotorType kMotorType = MotorType.kBrushless;
 
   private CANSparkMax m_shooterMotorTop;
   private CANSparkMax m_shooterMotorBottom;
+  private CANSparkMax m_shooterMotorAmp;
   private SparkPIDController m_pidController;
   private AbsoluteEncoder m_encoder;
 
   public ShooterSubsystem() {
 
     //Top shooterMotor motor
-    m_shooterMotorTop = new CANSparkMax(shooterMotorTopCanID, CANSparkLowLevel.MotorType.kBrushless);
+    m_shooterMotorTop = new CANSparkMax(ShooterConstants.shooterMotorTopCanID, CANSparkLowLevel.MotorType.kBrushless);
     m_shooterMotorTop.restoreFactoryDefaults();
 
 
 
     //Bottom shooterMotor motor
-    m_shooterMotorBottom = new CANSparkMax(shooterMotorBottomCanID, CANSparkLowLevel.MotorType.kBrushless);
+    m_shooterMotorBottom = new CANSparkMax(ShooterConstants.shooterMotorBottomCanID, CANSparkLowLevel.MotorType.kBrushless);
     m_shooterMotorBottom.restoreFactoryDefaults();
+
+    m_shooterMotorAmp = new CANSparkMax(ShooterConstants.shooterMotorAmpCanID, CANSparkLowLevel.MotorType.kBrushless);
+    m_shooterMotorAmp.restoreFactoryDefaults();
 
 
     /**
@@ -59,20 +61,9 @@ public class ShooterSubsystem extends SubsystemBase {
     m_shooterMotorTop.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
 
     m_shooterMotorBottom.follow(m_shooterMotorTop, true);
-  }
+    m_shooterMotorTop.follow(m_shooterMotorAmp);
 
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-  public Command armMotorMethodCommand() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          /* one-time action goes here */
-        });
+    this.setDefaultCommand(shootOff());
   }
 
   public Command shootOn(){
@@ -89,6 +80,13 @@ public class ShooterSubsystem extends SubsystemBase {
   public Command Intake(){
     m_shooterMotorTop.set(IntakeConstants.IntakeSpeed);
     return this.run(() -> m_shooterMotorTop.set(IntakeConstants.IntakeSpeed));
+  }
+
+  public Command AmpShotOn(){
+    return this.run(()-> m_shooterMotorAmp.set(ShooterConstants.AmpShotSpeed));
+  }
+  public Command AmpShotOff(){
+    return this.run(()-> m_shooterMotorAmp.set(0));
   }
   /**
    * An example method querying a boolean state of the subsystem (for example, a digital sensor).

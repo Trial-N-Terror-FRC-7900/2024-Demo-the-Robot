@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel;
-import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -13,13 +12,13 @@ public class IntakeSubsystem extends SubsystemBase {
   //private static final int kCanID = 9;
   //private static final MotorType kMotorType = MotorType.kBrushless;
 
-  private CANSparkMax m_intakeMotor;
-  public IntakeSubsystem() {
+  public CANSparkMax m_intakeMotor = new CANSparkMax(IntakeConstants.IntakeMotorCanID, CANSparkLowLevel.MotorType.kBrushless);
 
-    m_intakeMotor = new CANSparkMax(IntakeConstants.IntakeMotorCanID, CANSparkLowLevel.MotorType.kBrushless);
+  public IntakeSubsystem(){
     m_intakeMotor.restoreFactoryDefaults();
   }
-
+    //m_intakeMotor.restoreFactoryDefaults();
+    //this.setDefaultCommand(intakeOffCommand());
   /**
    * Example command factory method.
    *
@@ -29,19 +28,19 @@ public class IntakeSubsystem extends SubsystemBase {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem. 
     m_intakeMotor.set(IntakeConstants.IntakeSpeed);
-    return this.run(() -> m_intakeMotor.set(IntakeConstants.IntakeSpeed));
+    return this.runOnce(() -> m_intakeMotor.set(IntakeConstants.IntakeSpeed));
   }
 
   public Command intakeOffCommand() {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem.
-    m_intakeMotor.set(0);
-    return this.run(() -> m_intakeMotor.set(0));
+    //m_intakeMotor.set(0);
+    return this.runOnce(() -> m_intakeMotor.set(0));
   }
 
   public Command IntakeSpit(){
-    m_intakeMotor.set(-IntakeConstants.IntakeSpeed);
-    return this.run(() -> m_intakeMotor.set(-IntakeConstants.IntakeSpeed));
+    //m_intakeMotor.set(-IntakeConstants.IntakeSpeed);
+    return this.runOnce(() -> m_intakeMotor.set(-IntakeConstants.IntakeSpeed));
   }
 
   /**
@@ -53,6 +52,7 @@ public class IntakeSubsystem extends SubsystemBase {
     // Query some boolean state, such as a digital sensor.
     return false;
   }
+
 
   @Override
   public void periodic() {

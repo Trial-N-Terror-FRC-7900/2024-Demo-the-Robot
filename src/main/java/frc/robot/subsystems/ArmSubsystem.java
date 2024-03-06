@@ -1,12 +1,9 @@
 package frc.robot.subsystems;
 
-import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
-import com.revrobotics.SparkRelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,14 +25,14 @@ public class ArmSubsystem extends SubsystemBase {
 
     //Right from front arm motor
     m_armMotor1 = new CANSparkMax(ArmConstants.armMotor1CanID, CANSparkLowLevel.MotorType.kBrushless);
-    m_encoder = m_armMotor1.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
     m_armMotor1.restoreFactoryDefaults();
-
-
 
     //Left from front arm motor
     m_armMotor2 = new CANSparkMax(ArmConstants.armMotor2CanID, CANSparkLowLevel.MotorType.kBrushless);
     m_armMotor2.restoreFactoryDefaults();
+
+    m_encoder = m_armMotor1.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+    m_encoder.setZeroOffset(ArmConstants.EncoderZeroPosOffset);
 
     /**
      * From here on out, code looks exactly like running PID control with the 
@@ -79,21 +76,7 @@ public class ArmSubsystem extends SubsystemBase {
   }
   */
 
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-  public Command armMotorMethodCommand() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          /* one-time action goes here */
-        });
-  }
-
-  public Command armDown(){
+  public Command armLowReady(){
     return this.run(() -> m_pidController.setReference(ArmConstants.armDown, CANSparkMax.ControlType.kPosition));
   }
   public Command armAmp(){
@@ -122,6 +105,7 @@ public class ArmSubsystem extends SubsystemBase {
   public Command clickUp(){
     return null;
   }
+  */
 
   /**
    * An example method querying a boolean state of the subsystem (for example, a digital sensor).

@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import com.fasterxml.jackson.databind.node.DoubleNode;
+//import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.pathplanner.lib.util.PIDConstants;
 
 import edu.wpi.first.math.geometry.Translation3d;
@@ -57,6 +57,8 @@ public final class Constants
     //Green Motor
     public static final int armMotor2CanID = 11;
 
+    public static final double EncoderZeroPosOffset = 0; 
+
     public static final double kP = 0.1; 
     public static final double kI = 1e-4;
     public static final double kD = 1; 
@@ -65,9 +67,9 @@ public final class Constants
     public static final double kMaxOutput = 1; 
     public static final double kMinOutput = -1;
 
-    public static final double armSpeaker = 0.5;
-    public static final double armAmp = 0.5;
-    public static final double armDown = 0.5;
+    public static final double armSpeaker = 0.25;
+    public static final double armAmp = 0.25;
+    public static final double armDown = 0.25;
 
     public static final float armForwardLimit = 1;
     public static final float armReverseLimit = 0;
@@ -87,6 +89,7 @@ public final class Constants
     public static final int shooterMotorAmpCanID = 14;
 
     public static final int shootSpeed = 1;
+    public static final double AmpShotSpeed = 0.2;
   }
 
   public static class ElevatorConstants 
