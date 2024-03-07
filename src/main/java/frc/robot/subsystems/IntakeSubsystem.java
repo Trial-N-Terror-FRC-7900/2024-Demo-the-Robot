@@ -28,7 +28,7 @@ public class IntakeSubsystem extends SubsystemBase {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem. 
     m_intakeMotor.set(IntakeConstants.IntakeSpeed);
-    return this.runOnce(() -> m_intakeMotor.set(IntakeConstants.IntakeSpeed));
+    return this.run(() -> m_intakeMotor.set(IntakeConstants.IntakeSpeed));
   }
 
   public Command intakeOffCommand() {

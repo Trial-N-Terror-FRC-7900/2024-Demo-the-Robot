@@ -5,35 +5,19 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-//import edu.wpi.first.math.geometry.Pose2d;
-//import edu.wpi.first.math.geometry.Rotation2d;
-//import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-//import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-//import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.ElevatorSubsystem;
 import java.io.File;
-
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-
-
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -43,59 +27,32 @@ import com.pathplanner.lib.auto.NamedCommands;
 public class RobotContainer
 {
 
-  private final IntakeSubsystem m_Intake = new IntakeSubsystem();
-  //public final ArmSubsystem m_Arm = new ArmSubsystem();
-  //public final ShooterSubsystem m_shooter = new ShooterSubsystem();
-  //public final ElevatorSubsystem m_elevator = new ElevatorSubsystem();
-
-  private final SendableChooser<Command> autoChooser;
-  //public final Swerve swerve = new Swerve();
-
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                          "swerve"));
-  // CommandJoystick rotationController = new CommandJoystick(1);
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  CommandJoystick driverController = new CommandJoystick(1);
 
-  // CommandJoystick driverController   = new CommandJoystick(3);//(OperatorConstants.DRIVER_CONTROLLER_PORT);
-  XboxController driverXbox = new XboxController(1);
-  private final CommandXboxController OperatorXbox = new CommandXboxController(2);
+  // Replace with CommandPS4Controller or CommandJoystick if needed
+  final CommandXboxController driverXbox = new CommandXboxController(0);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer()
   {
-    // Register Named Commands
-    //NamedCommands.registerCommand("autoBalance", swerve.autoBalanceCommand());
-    //NamedCommands.registerCommand("ArmDown", m_Arm.armLowReady());
-    //NamedCommands.registerCommand("ArmAmp", m_Arm.armAmp());
-    //NamedCommands.registerCommand("ArmSpeaker", m_Arm.armSpeaker());
-    //NamedCommands.registerCommand("Shoot", m_shooter.shootOn());
-    //NamedCommands.registerCommand("ShootStop", m_shooter.shootOff());
-    //NamedCommands.registerCommand("shooterIntake", m_shooter.Intake());
-    //NamedCommands.registerCommand("IntakeOn", m_Intake.intakeOnCommand());
-    //NamedCommands.registerCommand("IntakeOff", m_Intake.intakeOffCommand());
-    //NamedCommands.registerCommand("IntakeSpit", m_Intake.IntakeSpit());
-    //NamedCommands.registerCommand("AmpShotOn", m_shooter.AmpShotOn());
-    //NamedCommands.registerCommand("AmpShotOff", m_shooter.AmpShotOff());
-    //NamedCommands.registerCommand("someOtherCommand", new SomeOtherCommand());
-
     // Configure the trigger bindings
     configureBindings();
 
     AbsoluteDriveAdv closedAbsoluteDriveAdv = new AbsoluteDriveAdv(drivebase,
-                                                                   () -> MathUtil.applyDeadband(driverXbox.getLeftY(),
+                                                                   () -> -MathUtil.applyDeadband(driverXbox.getLeftY(),
                                                                                                 OperatorConstants.LEFT_Y_DEADBAND),
-                                                                   () -> MathUtil.applyDeadband(driverXbox.getLeftX(),
+                                                                   () -> -MathUtil.applyDeadband(driverXbox.getLeftX(),
                                                                                                 OperatorConstants.LEFT_X_DEADBAND),
-                                                                   () -> MathUtil.applyDeadband(driverXbox.getRightX(),
+                                                                   () -> -MathUtil.applyDeadband(driverXbox.getRightX(),
                                                                                                 OperatorConstants.RIGHT_X_DEADBAND),
-                                                                   driverXbox::getYButtonPressed,
-                                                                   driverXbox::getAButtonPressed,
-                                                                   driverXbox::getXButtonPressed,
-                                                                   driverXbox::getBButtonPressed);
+                                                                   driverXbox.getHID()::getYButtonPressed,
+                                                                   driverXbox.getHID()::getAButtonPressed,
+                                                                   driverXbox.getHID()::getXButtonPressed,
+                                                                   driverXbox.getHID()::getBButtonPressed);
 
     // Applies deadbands and inverts controls because joysticks
     // are back-right positive while robot
@@ -103,10 +60,10 @@ public class RobotContainer
     // left stick controls translation
     // right stick controls the desired angle NOT angular rotation
     Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(-driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(-driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
-        () -> -driverXbox.getRightX(),
-        () -> -driverXbox.getRightY());
+        () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
+        () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
+        () -> driverXbox.getRightX(),
+        () -> driverXbox.getRightY());
 
     // Applies deadbands and inverts controls because joysticks
     // are back-right positive while robot
@@ -116,7 +73,7 @@ public class RobotContainer
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
         () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
         () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
-        () -> driverXbox.getRawAxis(2));
+        () -> driverXbox.getRightX() * 0.5);
 
     Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
         () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
@@ -125,14 +82,6 @@ public class RobotContainer
 
     drivebase.setDefaultCommand(
         !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
-
-    // Build an auto chooser. This will use Commands.none() as the default option.
-    autoChooser = AutoBuilder.buildAutoChooser();
-
-    // Another option that allows you to specify the default auto by its name
-    // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
-
-    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
   /**
@@ -140,38 +89,19 @@ public class RobotContainer
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary predicate, or via the
    * named factories in {@link edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
    * {@link CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller PS4}
-   * controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight joysticks}.0
+   * controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight joysticks}.
    */
   private void configureBindings()
   {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    OperatorXbox.y().whileTrue(m_Intake.intakeOnCommand());
-    //new JoystickButton(OperatorXbox, 4).onTrue(new InstantCommand(m_shooter::Intake));
-    //new JoystickButton(OperatorXbox, 4).onFalse(m_Intake.intakeOffCommand());
-    /* 
-    new JoystickButton(OperatorXbox, 3).onTrue(new InstantCommand(m_shooter::shootOn));
-    new JoystickButton(OperatorXbox, 3).onFalse((new InstantCommand(m_shooter::shootOff)));
 
-    new JoystickButton(OperatorXbox, 8).onTrue(new InstantCommand(m_shooter::AmpShotOn));
-    new JoystickButton(OperatorXbox, 8).onFalse((new InstantCommand(m_shooter::AmpShotOff)));
-
-    new JoystickButton(OperatorXbox, 1).onTrue(new InstantCommand(m_Intake::IntakeSpit));
-
-    new JoystickButton(OperatorXbox, 5).onFalse(m_Arm.armLowReady());
-    new JoystickButton(OperatorXbox, 6).onFalse(m_Arm.armLowReady()); // WHATTT IS THISSS
-    new JoystickButton(OperatorXbox, 5).onTrue(m_Arm.armAmp());
-    new JoystickButton(OperatorXbox, 6).onTrue(m_Arm.armSpeaker());
-
-    new JoystickButton(OperatorXbox,2).onTrue(m_elevator.elevatorUp());
-    new JoystickButton(OperatorXbox,2).onFalse(m_elevator.elevatorDown());
-    */
-    new JoystickButton(driverXbox, 1).onTrue((new InstantCommand(drivebase::zeroGyro)));
-    
-    //new JoystickButton(driverXbox, 3).onTrue(new InstantCommand(drivebase::addFakeVisionReading));
-    //new JoystickButton(driverXbox, 2).whileTrue(Commands.deferredProxy(() -> drivebase.driveToPose(new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))));
-    
-    //new JoystickButton(driverXbox, 3).whileTrue(new RepeatCommand(new InstantCommand(drivebase::lock, drivebase)));
-
+    driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
+    driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
+    driverXbox.b().whileTrue(
+        Commands.deferredProxy(() -> drivebase.driveToPose(
+                                   new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
+                              ));
+    // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
   }
 
   /**
@@ -182,7 +112,7 @@ public class RobotContainer
   public Command getAutonomousCommand()
   {
     // An example command will be run in autonomous
-    return autoChooser.getSelected();
+    return drivebase.getAutonomousCommand("New Auto");
   }
 
   public void setDriveMode()
